@@ -1,6 +1,10 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local playerGui = player:FindFirstChildOfClass("PlayerGui") or player:WaitForChild("PlayerGui", 10)
+if not playerGui then
+    warn("[Celestial Hub] PlayerGui not found")
+    return
+end
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
@@ -271,10 +275,37 @@ local logoFileName = "celestial_hub_logo.png"
 local configFileName = "celestial_config.json"
 
 --// Логика MM2 Role ESP[cite: 1]
-local GetPlayerData = ReplicatedStorage
-    :WaitForChild("Remotes")
-    :WaitForChild("Extras")
-    :WaitForChild("GetPlayerData")
+local GetPlayerData = nil
+
+local function findGetPlayerData()
+    if GetPlayerData and GetPlayerData.Parent and GetPlayerData:IsA("RemoteFunction") then
+        return GetPlayerData
+    end
+
+    local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+    local extras = remotes and remotes:FindFirstChild("Extras")
+    local remote = extras and extras:FindFirstChild("GetPlayerData")
+
+    if remote and remote:IsA("RemoteFunction") then
+        GetPlayerData = remote
+        return remote
+    end
+
+    local rootRemote = ReplicatedStorage:FindFirstChild("GetPlayerData", true)
+    if rootRemote and rootRemote:IsA("RemoteFunction") then
+        GetPlayerData = rootRemote
+        return rootRemote
+    end
+
+    return nil
+end
+
+task.spawn(function()
+    for _ = 1, 80 do
+        if findGetPlayerData() then break end
+        task.wait(0.25)
+    end
+end)
 
 local ROLE_COLORS = {
     Murderer = Color3.fromRGB(255, 0, 0),        
@@ -349,8 +380,13 @@ local function updateESP()
         return
     end
 
+    local remote = findGetPlayerData()
+    if not remote then
+        return
+    end
+
     local success, playerData = pcall(function()
-        return GetPlayerData:InvokeServer()
+        return remote:InvokeServer()
     end)
 
     if not success or type(playerData) ~= "table" then
@@ -1520,7 +1556,7 @@ end
 
 local ToggleSwitchRefs = ToggleSwitchRefs or {}
 
-local function addToggle(container, textKey, featureKey, hasSettings, callback)\n    local toggleItem = Instance.new("Frame")
+local function addToggle(container, textKey, featureKey, hasSettings, callback)    local toggleItem = Instance.new("Frame")
     toggleItem.Name = "ToggleItem"
     toggleItem.Size = UDim2.new(1, 0, 0, 34)
     toggleItem.BackgroundTransparency = 1
