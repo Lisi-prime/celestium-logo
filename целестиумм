@@ -3044,4 +3044,4 @@ player.CharacterAdded:Connect(function(char)
 end)
 
 notify(L("LoadedTitle"), L("LoadedDesc"), 5)
--- VERSION 3046
+-- VERSION-3047-FIX
