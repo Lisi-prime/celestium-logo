@@ -867,7 +867,10 @@ topToggleLabel.ZIndex = 51
 topToggleLabel.Parent = topToggleBtn
 
 barDragging = false
-barDragStart, barStartPos
+
+barDragStart = nil
+barStartPos = nil
+
 hasMoved = false
 
 topToggleBtn.InputBegan:Connect(function(input)
@@ -1331,7 +1334,9 @@ function createTab(name, realKey, iconId)
     return tabFrame
 end
 
-playerListPanel, playerListStroke, playerListTitle
+playerListPanel = nil
+playerListStroke = nil
+playerListTitle = nil
 
 function applyTheme(themeName)
     currentThemeName = themeName
@@ -2422,7 +2427,6 @@ function getClosestPlayerForSilentAim()
     return closestPlayer
 end
 
-oldIndex
 oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, index)
     if not checkcaller() and Toggles.SilentAim and self == player:GetMouse() then
         if index == "Hit" or index == "Target" then
@@ -2971,7 +2975,6 @@ Players.PlayerRemoving:Connect(function()
     task.defer(rebuildPlayerList)
 end)
 
-keyConnection
 keyConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if not celestialGui.Parent then keyConnection:Disconnect() return end
@@ -2979,7 +2982,6 @@ keyConnection = UserInputService.InputBegan:Connect(function(input, gameProcesse
 end)
 
 mainDragging = false
-mainDragStart, mainStartPos
 
 topDragBar = Instance.new("Frame")
 topDragBar.Size = UDim2.new(1, -120, 0, 65)
